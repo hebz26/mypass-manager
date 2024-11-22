@@ -1,0 +1,43 @@
+/* CardsPage.css */
+.tab-page {
+    margin-left: 50px;
+    margin-top: 50px;
+  }
+  
+  .header {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .unmask-button {
+    padding: 10px 20px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .unmask-button:hover {
+    background-color: #2b6cb0;
+  }
+  
+  .cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .card-item {
+    margin-bottom: 20px;
+  }
+
+  
+@media (max-width: 768px) {
+    .tab-page {
+      margin-left: 200px; 
+    }
+  }
+  
