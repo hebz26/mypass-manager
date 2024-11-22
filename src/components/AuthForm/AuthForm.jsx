@@ -25,7 +25,7 @@ const AuthForm = () => {
       >
         <VStack spacing={6} w="full">
           <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-            {isLogin ? "Welcome Back" : "Join Us"}
+            {isLogin ? "Welcome To MyPass " : "Join MyPass"}
           </Text>
           <Text fontSize="sm" color="gray.500" textAlign="center">
             {isLogin
