@@ -50,12 +50,6 @@ const useSignUpWithEmailAndPassword = () => {
               answer: inputs.securityAnswer3,
             },
           ],
-          vault: {
-            logins: [],
-            creditCards: [],
-            identities: [],
-            secureNotes: [],
-          },
           preferences: {
             autoLockMinutes: 5,
             clipboardTimeout: 2,
