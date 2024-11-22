@@ -8,6 +8,7 @@ import CardsPage from "./pages/CardsPage";
 import LoginsPage from "./pages/LoginsPage";
 import NotesPage from "./pages/NotesPage";
 import IdentityPage from "./pages/IdentityPage";
+import RecoveryPage from "./pages/RecoveryPage";
 
 function App() {
   const [authUser] = useAuthState(auth);
@@ -38,6 +39,10 @@ function App() {
         <Route
           path="/auth"
           element={!authUser ? <AuthPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/recoverPassword"
+          element={!authUser ? <RecoveryPage /> : <Navigate to="/" />}
         />
       </Routes>
     </PageLayout>

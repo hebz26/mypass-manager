@@ -1,5 +1,6 @@
-import { Box, Flex, Text, VStack, Divider } from "@chakra-ui/react";
+import { Box, Flex, Text, VStack, Divider, Link } from "@chakra-ui/react";
 import { useState } from "react";
+import { Link as RouterLink } from "react-router-dom"; // Use RouterLink for navigation
 import Login from "./Login";
 import Signup from "./Signup";
 
@@ -25,7 +26,7 @@ const AuthForm = () => {
       >
         <VStack spacing={6} w="full">
           <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-            {isLogin ? "Welcome To MyPass " : "Join MyPass"}
+            {isLogin ? "Welcome To MyPass" : "Join MyPass"}
           </Text>
           <Text fontSize="sm" color="gray.500" textAlign="center">
             {isLogin
@@ -34,6 +35,20 @@ const AuthForm = () => {
           </Text>
 
           {isLogin ? <Login /> : <Signup />}
+
+          {isLogin && (
+            <Link
+              as={RouterLink}
+              to="/recoverPassword"
+              fontSize="sm"
+              color="blue.500"
+              fontWeight="medium"
+              textAlign="center"
+              mt={2}
+            >
+              Forgot Master Password?
+            </Link>
+          )}
 
           <Flex align="center" w="full" my={4}>
             <Divider borderColor="gray.300" />

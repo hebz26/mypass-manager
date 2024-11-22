@@ -7,14 +7,16 @@ import { auth } from "../../firebase/firebase";
 const PageLayout = ({ children }) => {
   const { pathname } = useLocation();
   const [user, loading] = useAuthState(auth);
-  const canRenderSidebar = pathname !== "/auth" && user;
-  const canRenderNavbar = !user && !loading && pathname !== "/auth";
+  const canRenderSidebar =
+    pathname !== "/auth" && user && pathname !== "/recoverPassword";
 
   const checkingUserIsAuth = !user && loading;
   if (checkingUserIsAuth) return <PageLayoutSpinner />;
 
   return (
-    <Flex flexDir={canRenderNavbar ? "column" : "row"}>
+    <Flex flexDir="row">
+      {" "}
+      {/* Always use row direction */}
       {/* Sidebar on the left */}
       {canRenderSidebar ? (
         <Box w={{ base: "70px", md: "240px" }}>
