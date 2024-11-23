@@ -54,11 +54,7 @@ const CardsPage = () => {
         </Text>
 
         {/* Render CreateCard Modal */}
-        <CreateCard
-          onCardCreated={() =>
-            showToast("Success", "Card created successfully.", "success")
-          }
-        />
+        <CreateCard onCardCreated={() => console.log("Card added")} />
 
         {/* Button to Unmask All Cards */}
         <Button onClick={handleUnmaskAll} colorScheme="blue" mb={4}>
