@@ -1,4 +1,4 @@
-/* CardsPage.css */
+/* For each of our 4 pages */
 .tab-page {
     margin-left: 50px;
     margin-top: 50px;
@@ -9,26 +9,49 @@
     display: flex;
     justify-content: space-between;
   }
+
+  .buttons{
+    display: flex;
+    gap: 20px;
+  }
   
   .unmask-button {
     padding: 10px 20px;
-    background-color: #3182ce;
+    background-color: #3163ce;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: 500;
   }
   
   .unmask-button:hover {
     background-color: #2b6cb0;
   }
+  .all-cards-container {
+    padding: 50px;
+  }
   
   .cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 10px;
-    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content:flex-start;
   }
+  
+  .cards-container > .card {
+    flex: 1 1 calc(50% - 16px);
+    max-width: calc(50% - 16px);
+    box-sizing: border-box;
+  }
+  
+  @media (max-width: 768px) {
+    .cards-container > .card {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+  }
+  
   
   .card-item {
     margin-bottom: 20px;

@@ -25,29 +25,55 @@ import { firestore } from "../../firebase/firebase";
 import useShowToast from "../../hooks/useShowToast";
 import { useClipboard } from "@chakra-ui/react";
 
+const CardDetailRow = ({
+  label,
+  value,
+  isUnmasked,
+  maskedValue,
+  onCopy,
+  hasCopied,
+}) => (
+  <Flex mt={4} justifyContent="space-between" alignItems="center">
+    <Text fontWeight="bold">{label}:</Text>
+    <Text>{isUnmasked ? value : maskedValue}</Text>
+    <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
+      <IconButton
+        icon={hasCopied ? <Text>✔</Text> : <Text>📋</Text>}
+        onClick={onCopy}
+        size="sm"
+      />
+    </Tooltip>
+  </Flex>
+);
+
 const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
-  const { cardNumber, cvv, expiryDate, caption, id } = card;
+  const { cardNumber, cvv, expiryDate, name, id } = card;
+
   const [isEditing, setIsEditing] = useState(false);
-  const [newCardNumber, setNewCardNumber] = useState(cardNumber);
-  const [newCvv, setNewCvv] = useState(cvv);
-  const [newExpiryDate, setNewExpiryDate] = useState(expiryDate);
-  const [newCaption, setNewCaption] = useState(caption);
+  const [editValues, setEditValues] = useState({
+    cardNumber,
+    cvv,
+    expiryDate,
+    name,
+  });
+
+  const showToast = useShowToast();
+
+  // Clipboard hooks
   const { hasCopied: hasCopiedCardNumber, onCopy: onCopyCardNumber } =
     useClipboard(isUnmasked ? cardNumber : "**** **** **** ****");
   const { hasCopied: hasCopiedCvv, onCopy: onCopyCvv } = useClipboard(
-    isUnmasked ? cvv : "****"
+    isUnmasked ? cvv : "***"
   );
-  const { hasCopied: hasCopiedExpiry, onCopy: onCopyExpiry } =
-    useClipboard(expiryDate);
-  const { hasCopied: hasCopiedCaption, onCopy: onCopyCaption } =
-    useClipboard(caption);
-  const showToast = useShowToast();
+  const { hasCopied: hasCopiedExpiry, onCopy: onCopyExpiry } = useClipboard(
+    isUnmasked ? expiryDate : "**/**"
+  );
 
   const handleDelete = async () => {
     try {
-      await deleteDoc(doc(firestore, `users/${uid}/creditCards`, id));
+      await deleteDoc(doc(firestore, `users/${uid}/cards`, id));
       showToast("Success", "Card deleted successfully.", "success");
-      onDelete(id); // Call the onDelete function passed from parent to update UI immediately
+      onDelete(id);
     } catch (error) {
       showToast("Error", "Failed to delete card.", "error");
     }
@@ -55,18 +81,17 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
 
   const handleEdit = async () => {
     try {
-      const cardRef = doc(firestore, `users/${uid}/creditCards`, id);
-      await updateDoc(cardRef, {
-        cardNumber: newCardNumber,
-        cvv: newCvv,
-        expiryDate: newExpiryDate,
-        caption: newCaption,
-      });
+      const cardRef = doc(firestore, `users/${uid}/cards`, id);
+      await updateDoc(cardRef, editValues);
       showToast("Success", "Card updated successfully.", "success");
-      setIsEditing(false); // Close the modal after editing
+      setIsEditing(false);
     } catch (error) {
       showToast("Error", "Failed to update card.", "error");
     }
+  };
+
+  const handleChange = (field, value) => {
+    setEditValues((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -75,59 +100,38 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
       p={6}
       borderRadius="lg"
       mb={6}
-      width={300}
+      width={400}
       boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
       backgroundColor="white"
     >
-      <Text fontWeight="bold">Card Number:</Text>
-      <Text>{isUnmasked ? cardNumber : "**** **** **** ****"}</Text>
-
-      <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
-        <IconButton
-          icon={hasCopiedCardNumber ? <Text>✔</Text> : <Text>📋</Text>}
-          onClick={onCopyCardNumber}
-          size="sm"
-        />
-      </Tooltip>
-
-      <Text mt={2}>
-        <Text fontWeight="bold">CVV:</Text>
-        {isUnmasked ? cvv : "****"}
+      <Text fontSize={24} fontWeight="bold">
+        {name}
       </Text>
 
-      <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
-        <IconButton
-          icon={hasCopiedCvv ? <Text>✔</Text> : <Text>📋</Text>}
-          onClick={onCopyCvv}
-          size="sm"
-        />
-      </Tooltip>
-
-      <Text mt={2}>
-        <Text fontWeight="bold">Expiry Date:</Text>
-        {expiryDate}
-      </Text>
-
-      <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
-        <IconButton
-          icon={hasCopiedExpiry ? <Text>✔</Text> : <Text>📋</Text>}
-          onClick={onCopyExpiry}
-          size="sm"
-        />
-      </Tooltip>
-
-      <Text mt={2}>
-        <Text fontWeight="bold">Caption:</Text>
-        {caption}
-      </Text>
-
-      <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
-        <IconButton
-          icon={hasCopiedCaption ? <Text>✔</Text> : <Text>📋</Text>}
-          onClick={onCopyCaption}
-          size="sm"
-        />
-      </Tooltip>
+      <CardDetailRow
+        label="Card Number"
+        value={cardNumber}
+        isUnmasked={isUnmasked}
+        maskedValue="**** **** **** ****"
+        onCopy={onCopyCardNumber}
+        hasCopied={hasCopiedCardNumber}
+      />
+      <CardDetailRow
+        label="CVV"
+        value={cvv}
+        isUnmasked={isUnmasked}
+        maskedValue="***"
+        onCopy={onCopyCvv}
+        hasCopied={hasCopiedCvv}
+      />
+      <CardDetailRow
+        label="Expiration Date"
+        value={expiryDate}
+        isUnmasked={isUnmasked}
+        maskedValue="**/**"
+        onCopy={onCopyExpiry}
+        hasCopied={hasCopiedExpiry}
+      />
 
       <Flex mt={4} justifyContent="space-between" alignItems="center">
         <Tooltip label="Edit Card" aria-label="Edit Card">
@@ -138,7 +142,6 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
             colorScheme="blue"
           />
         </Tooltip>
-
         <Tooltip label="Delete Card" aria-label="Delete Card">
           <IconButton
             icon={<HiOutlineTrash />}
@@ -152,43 +155,36 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
       {/* Modal for Editing Card */}
       <Modal isOpen={isEditing} onClose={() => setIsEditing(false)} size="xl">
         <ModalOverlay />
-        <ModalContent bg={"white"} border={"1px solid gray"}>
-          {" "}
-          {/* Light background */}
+        <ModalContent>
           <ModalHeader>Edit Card</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Input
+              placeholder="Name"
+              mb={4}
+              value={editValues.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+            />
+            <Input
               placeholder="Card Number"
-              value={newCardNumber}
-              onChange={(e) => setNewCardNumber(e.target.value)}
+              value={editValues.cardNumber}
+              onChange={(e) => handleChange("cardNumber", e.target.value)}
             />
             <Input
               placeholder="CVV"
               mt={4}
-              value={newCvv}
-              onChange={(e) => setNewCvv(e.target.value)}
+              value={editValues.cvv}
+              onChange={(e) => handleChange("cvv", e.target.value)}
             />
             <Input
               placeholder="Expiry Date"
               mt={4}
-              value={newExpiryDate}
-              onChange={(e) => setNewExpiryDate(e.target.value)}
-            />
-            <Input
-              placeholder="Caption"
-              mt={4}
-              value={newCaption}
-              onChange={(e) => setNewCaption(e.target.value)}
+              value={editValues.expiryDate}
+              onChange={(e) => handleChange("expiryDate", e.target.value)}
             />
           </ModalBody>
           <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              onClick={handleEdit}
-              isLoading={false} // Loading state could be managed here
-            >
+            <Button colorScheme="blue" mr={3} onClick={handleEdit}>
               Save
             </Button>
             <Button variant="ghost" onClick={() => setIsEditing(false)}>
