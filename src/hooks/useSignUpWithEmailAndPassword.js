@@ -40,6 +40,7 @@ const useSignUpWithEmailAndPassword = () => {
           securityAnswer2: inputs.securityAnswer2,
           securityAnswer3: inputs.securityAnswer3,
           ssn: "",
+          masterPassword: inputs.password,
           licenseNumber: "",
           licenseExpiration: "",
           passportNumber: "",
