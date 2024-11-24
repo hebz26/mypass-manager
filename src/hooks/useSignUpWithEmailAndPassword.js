@@ -36,24 +36,9 @@ const useSignUpWithEmailAndPassword = () => {
         const userDoc = {
           uid: newUser.user.uid,
           email: inputs.email,
-          securityQuestions: [
-            {
-              question: inputs.securityQuestion1,
-              answer: inputs.securityAnswer1,
-            },
-            {
-              question: inputs.securityQuestion2,
-              answer: inputs.securityAnswer2,
-            },
-            {
-              question: inputs.securityQuestion3,
-              answer: inputs.securityAnswer3,
-            },
-          ],
-          preferences: {
-            autoLockMinutes: 5,
-            clipboardTimeout: 2,
-          },
+          securityAnswer1: inputs.securityAnswer1,
+          securityAnswer2: inputs.securityAnswer2,
+          securityAnswer3: inputs.securityAnswer3,
           ssn: "",
           licenseNumber: "",
           licenseExpiration: "",

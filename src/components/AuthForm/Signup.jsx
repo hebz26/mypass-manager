@@ -12,22 +12,11 @@ import { useState } from "react";
 import useSignUpWithEmailAndPassword from "../../hooks/useSignUpWithEmailAndPassword";
 
 const Signup = () => {
-  const securityQuestions = [
-    "What is your mother's maiden name?",
-    "What was the name of your first pet?",
-    "What city were you born in?",
-    "What is your favorite food?",
-    "What is the name of your first school?",
-  ];
-
   const [inputs, setInputs] = useState({
     email: "",
     password: "",
-    securityQuestion1: "",
     securityAnswer1: "",
-    securityQuestion2: "",
     securityAnswer2: "",
-    securityQuestion3: "",
     securityAnswer3: "",
   });
 
@@ -83,23 +72,8 @@ const Signup = () => {
         </InputRightElement>
       </InputGroup>
 
-      {/* Security Question 1 */}
-      <Select
-        placeholder="Select a security question"
-        size={"sm"}
-        value={inputs.securityQuestion1}
-        onChange={(e) =>
-          setInputs({ ...inputs, securityQuestion1: e.target.value })
-        }
-      >
-        {securityQuestions.map((question, index) => (
-          <option key={index} value={question}>
-            {question}
-          </option>
-        ))}
-      </Select>
       <Input
-        placeholder="Your answer"
+        placeholder="What is your mother's maiden name?"
         fontSize={14}
         size={"sm"}
         value={inputs.securityAnswer1}
@@ -107,24 +81,8 @@ const Signup = () => {
           setInputs({ ...inputs, securityAnswer1: e.target.value })
         }
       />
-
-      {/* Security Question 2 */}
-      <Select
-        placeholder="Select a security question"
-        size={"sm"}
-        value={inputs.securityQuestion2}
-        onChange={(e) =>
-          setInputs({ ...inputs, securityQuestion2: e.target.value })
-        }
-      >
-        {securityQuestions.map((question, index) => (
-          <option key={index} value={question}>
-            {question}
-          </option>
-        ))}
-      </Select>
       <Input
-        placeholder="Your answer"
+        placeholder="What is the name of your first school?"
         fontSize={14}
         size={"sm"}
         value={inputs.securityAnswer2}
@@ -132,24 +90,8 @@ const Signup = () => {
           setInputs({ ...inputs, securityAnswer2: e.target.value })
         }
       />
-
-      {/* Security Question 3 */}
-      <Select
-        placeholder="Select a security question"
-        size={"sm"}
-        value={inputs.securityQuestion3}
-        onChange={(e) =>
-          setInputs({ ...inputs, securityQuestion3: e.target.value })
-        }
-      >
-        {securityQuestions.map((question, index) => (
-          <option key={index} value={question}>
-            {question}
-          </option>
-        ))}
-      </Select>
       <Input
-        placeholder="Your answer"
+        placeholder="What city were you born in?"
         fontSize={14}
         size={"sm"}
         value={inputs.securityAnswer3}
