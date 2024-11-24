@@ -54,6 +54,11 @@ const useSignUpWithEmailAndPassword = () => {
             autoLockMinutes: 5,
             clipboardTimeout: 2,
           },
+          ssn: "",
+          licenseNumber: "",
+          licenseExpiration: "",
+          passportNumber: "",
+          passportExpiration: "",
           createdAt: Date.now(),
           lastLogin: Date.now(),
         };
