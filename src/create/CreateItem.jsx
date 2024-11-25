@@ -1,7 +1,8 @@
 import { Box, Text, useDisclosure } from "@chakra-ui/react";
 import { useState } from "react";
 import CardModal from "../components/modals/CardModal";
-// Import other modals that we need here
+import LoginModal from "../components/modals/LoginModal";
+import NoteModal from "../components/modals/NoteModal";
 
 const CreateItem = ({ collectionType, onItemCreated }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -12,6 +13,24 @@ const CreateItem = ({ collectionType, onItemCreated }) => {
       case "cards":
         return (
           <CardModal
+            onClose={onClose}
+            onItemCreated={onItemCreated}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+      case "logins":
+        return (
+          <LoginModal
+            onClose={onClose}
+            onItemCreated={onItemCreated}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        );
+      case "notes":
+        return (
+          <NoteModal
             onClose={onClose}
             onItemCreated={onItemCreated}
             isLoading={isLoading}

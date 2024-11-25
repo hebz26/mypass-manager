@@ -42,7 +42,7 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
       showToast("Success", "Card deleted successfully.", "success");
       onDelete(id);
     } catch (error) {
-      showToast("Error", "Failed to delete card.", "error");
+      console.log("Failed to delete card.");
     }
   };
 
