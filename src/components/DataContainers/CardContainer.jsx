@@ -1,50 +1,19 @@
 import React, { useState } from "react";
-import {
-  Flex,
-  Box,
-  Button,
-  Text,
-  IconButton,
-  Tooltip,
-  Input,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalCloseButton,
-  ModalOverlay,
-  ModalContent,
-} from "@chakra-ui/react";
-import {
-  HiOutlineTrash,
-  HiOutlineEyeOff,
-  HiOutlinePencil,
-} from "react-icons/hi";
+import { Box, Text, IconButton, Tooltip, Flex } from "@chakra-ui/react";
+import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../firebase/firebase";
 import useShowToast from "../../hooks/useShowToast";
-import { useClipboard } from "@chakra-ui/react";
-
-//For Proxy Pattern Implementation
+import useCopyToClipboard from "../../hooks/useCopyToClipboard";
 import { RealData, ProxyData } from "../proxy/DataClasses";
+import EditModal from "../modals/EditModal";
 
-const CardDetailRow = ({
-  label,
-  value,
-  isUnmasked,
-  maskedValue,
-  onCopy,
-  hasCopied,
-}) => (
+const CardDetailRow = ({ label, value, isUnmasked, maskedValue, onCopy }) => (
   <Flex mt={4} justifyContent="space-between" alignItems="center">
     <Text fontWeight="bold">{label}:</Text>
     <Text>{isUnmasked ? value : maskedValue}</Text>
     <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
-      <IconButton
-        icon={hasCopied ? <Text>✔</Text> : <Text>📋</Text>}
-        onClick={onCopy}
-        size="sm"
-      />
+      <IconButton icon={<Text>📋</Text>} onClick={onCopy} size="sm" />
     </Tooltip>
   </Flex>
 );
@@ -65,17 +34,7 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
   });
 
   const showToast = useShowToast();
-
-  // Clipboard hooks
-  const { hasCopied: hasCopiedCardNumber, onCopy: onCopyCardNumber } =
-    useClipboard(
-      isUnmasked ? cardNumberProxy.unmask() : cardNumberProxy.mask()
-    );
-  const { hasCopied: hasCopiedCvv, onCopy: onCopyCvv } = useClipboard(
-    isUnmasked ? cvvProxy.unmask() : cvvProxy.mask()
-  );
-  const { hasCopied: hasCopiedExpiry, onCopy: onCopyExpiry } =
-    useClipboard(expiryDate);
+  const { copyToClipboard } = useCopyToClipboard();
 
   const handleDelete = async () => {
     try {
@@ -83,7 +42,7 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
       showToast("Success", "Card deleted successfully.", "success");
       onDelete(id);
     } catch (error) {
-      console.log("Error: Failed to delete card.");
+      showToast("Error", "Failed to delete card.", "error");
     }
   };
 
@@ -120,24 +79,27 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
         value={cardNumberProxy.unmask()}
         isUnmasked={isUnmasked}
         maskedValue={cardNumberProxy.mask()}
-        onCopy={onCopyCardNumber}
-        hasCopied={hasCopiedCardNumber}
+        onCopy={() =>
+          copyToClipboard(
+            isUnmasked ? cardNumberProxy.unmask() : cardNumberProxy.mask()
+          )
+        }
       />
       <CardDetailRow
         label="CVV"
         value={cvvProxy.unmask()}
         isUnmasked={isUnmasked}
         maskedValue={cvvProxy.mask()}
-        onCopy={onCopyCvv}
-        hasCopied={hasCopiedCvv}
+        onCopy={() =>
+          copyToClipboard(isUnmasked ? cvvProxy.unmask() : cvvProxy.mask())
+        }
       />
       <CardDetailRow
         label="Expiration Date"
         value={expiryDate}
         isUnmasked={true}
         maskedValue={expiryDate}
-        onCopy={onCopyExpiry}
-        hasCopied={hasCopiedExpiry}
+        onCopy={() => copyToClipboard(expiryDate)}
       />
 
       <Flex mt={4} justifyContent="space-between" alignItems="center">
@@ -159,47 +121,20 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
         </Tooltip>
       </Flex>
 
-      {/* Modal for Editing Card */}
-      <Modal isOpen={isEditing} onClose={() => setIsEditing(false)} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Card</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <Input
-              placeholder="Name"
-              mb={4}
-              value={editValues.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-            />
-            <Input
-              placeholder="Card Number"
-              value={editValues.cardNumber}
-              onChange={(e) => handleChange("cardNumber", e.target.value)}
-            />
-            <Input
-              placeholder="CVV"
-              mt={4}
-              value={editValues.cvv}
-              onChange={(e) => handleChange("cvv", e.target.value)}
-            />
-            <Input
-              placeholder="Expiry Date"
-              mt={4}
-              value={editValues.expiryDate}
-              onChange={(e) => handleChange("expiryDate", e.target.value)}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleEdit}>
-              Save
-            </Button>
-            <Button variant="ghost" onClick={() => setIsEditing(false)}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {/* Editable Form Modal */}
+      <EditModal
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        editValues={editValues}
+        onSave={handleEdit}
+        onChange={handleChange}
+        fields={[
+          { name: "name", placeholder: "Name" },
+          { name: "cardNumber", placeholder: "Card Number" },
+          { name: "cvv", placeholder: "CVV" },
+          { name: "expiryDate", placeholder: "Expiration Date" },
+        ]}
+      />
     </Box>
   );
 };
