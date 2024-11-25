@@ -30,7 +30,7 @@ const useLogout = () => {
     }
     inactivityTimer.current = setTimeout(() => {
       handleLogout(); // Trigger logout after inactivity
-    }, 300000); // 5 minutes
+    }, 900000); // 15 minutes
   };
 
   useEffect(() => {
