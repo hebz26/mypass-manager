@@ -25,6 +25,9 @@ import { firestore } from "../../firebase/firebase";
 import useShowToast from "../../hooks/useShowToast";
 import { useClipboard } from "@chakra-ui/react";
 
+//For Proxy Pattern Implementation
+import { RealData, ProxyData } from "../proxy/DataClasses";
+
 const CardDetailRow = ({
   label,
   value,
@@ -49,6 +52,10 @@ const CardDetailRow = ({
 const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
   const { cardNumber, cvv, expiryDate, name, id } = card;
 
+  // Create instances of ProxyData for masking/unmasking
+  const cardNumberProxy = new ProxyData(new RealData(cardNumber));
+  const cvvProxy = new ProxyData(new RealData(cvv));
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     cardNumber,
@@ -61,13 +68,14 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
 
   // Clipboard hooks
   const { hasCopied: hasCopiedCardNumber, onCopy: onCopyCardNumber } =
-    useClipboard(isUnmasked ? cardNumber : "**** **** **** ****");
+    useClipboard(
+      isUnmasked ? cardNumberProxy.unmask() : cardNumberProxy.mask()
+    );
   const { hasCopied: hasCopiedCvv, onCopy: onCopyCvv } = useClipboard(
-    isUnmasked ? cvv : "***"
+    isUnmasked ? cvvProxy.unmask() : cvvProxy.mask()
   );
-  const { hasCopied: hasCopiedExpiry, onCopy: onCopyExpiry } = useClipboard(
-    isUnmasked ? expiryDate : "**/**"
-  );
+  const { hasCopied: hasCopiedExpiry, onCopy: onCopyExpiry } =
+    useClipboard(expiryDate);
 
   const handleDelete = async () => {
     try {
@@ -75,7 +83,7 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
       showToast("Success", "Card deleted successfully.", "success");
       onDelete(id);
     } catch (error) {
-      showToast("Error", "Failed to delete card.", "error");
+      console.log("Error: Failed to delete card.");
     }
   };
 
@@ -107,28 +115,27 @@ const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
       <Text fontSize={24} fontWeight="bold">
         {name}
       </Text>
-
       <CardDetailRow
         label="Card Number"
-        value={cardNumber}
+        value={cardNumberProxy.unmask()}
         isUnmasked={isUnmasked}
-        maskedValue="**** **** **** ****"
+        maskedValue={cardNumberProxy.mask()}
         onCopy={onCopyCardNumber}
         hasCopied={hasCopiedCardNumber}
       />
       <CardDetailRow
         label="CVV"
-        value={cvv}
+        value={cvvProxy.unmask()}
         isUnmasked={isUnmasked}
-        maskedValue="***"
+        maskedValue={cvvProxy.mask()}
         onCopy={onCopyCvv}
         hasCopied={hasCopiedCvv}
       />
       <CardDetailRow
         label="Expiration Date"
         value={expiryDate}
-        isUnmasked={isUnmasked}
-        maskedValue="**/**"
+        isUnmasked={true}
+        maskedValue={expiryDate}
         onCopy={onCopyExpiry}
         hasCopied={hasCopiedExpiry}
       />
