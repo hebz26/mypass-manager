@@ -31,6 +31,16 @@ const Sidebar = () => {
       <VStack spacing={4} align="stretch">
         <Link
           as={RouterLink}
+          to="/"
+          p="2"
+          borderRadius="md"
+          _hover={{ bg: "blue.200", color: "black" }}
+          _active={{ bg: "blue.300" }}
+        >
+          Home
+        </Link>
+        <Link
+          as={RouterLink}
           to="/logins"
           p="2"
           borderRadius="md"

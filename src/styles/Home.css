@@ -1,0 +1,31 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+    align-items: center;
+}
+
+.title{
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.paragraph1, .paragraph2{
+font-size: 24px;
+padding: 0 100px 0 100px;
+}
+
+.paragraph1{
+ margin-top: 25px;       
+}
+
+.paragraph2{
+    margin-top: 15px;       
+   }
+
+span{
+    font-weight: bold;
+    color: rgb(35, 60, 137);
+}
