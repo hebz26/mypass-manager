@@ -106,8 +106,8 @@ const NoteContainer = ({ note, uid, isUnmasked, onDelete }) => {
         onSave={handleEdit}
         onChange={handleChange}
         fields={[
-          { field: "title", placeholder: "Note Title" },
-          { field: "content", placeholder: "Content" },
+          { name: "title", placeholder: "Note Title" },
+          { name: "content", placeholder: "Content" },
         ]}
       />
     </Box>
