@@ -8,8 +8,10 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useSignUpWithEmailAndPassword from "../../hooks/useSignUpWithEmailAndPassword";
+import PasswordBuilder from "../../utils/PasswordBuilder";
+import WeakPasswordObserver from "../../utils/WeakPasswordObserver";
 
 const Signup = () => {
   const [inputs, setInputs] = useState({
@@ -23,8 +25,32 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, signup } = useSignUpWithEmailAndPassword();
 
+  // Observer pattern to warn about weak passwords
+  const [passwordWarning, setPasswordWarning] = useState(null);
+
+  useEffect(() => {
+    const observer = new WeakPasswordObserver();
+    observer.subscribe((message) => setPasswordWarning(message));
+    observer.checkPassword(inputs.password);
+    return () => observer.unsubscribe(); // Cleanup subscription
+  }, [inputs.password]);
+
+  const suggestPassword = () => {
+    try {
+      const builder = new PasswordBuilder()
+        .setLength(12) // Customize length as needed
+        .addUppercase()
+        .addNumbers()
+        .addSymbols();
+      const strongPassword = builder.build();
+      setInputs({ ...inputs, password: strongPassword });
+      setPasswordWarning(null); // Clear any warnings for the suggested password
+    } catch (error) {
+      alert("Error generating password: " + error.message);
+    }
+  };
+
   const handleSubmit = () => {
-    // Check if all necessary fields are filled
     if (
       !inputs.email ||
       !inputs.password ||
@@ -32,12 +58,10 @@ const Signup = () => {
       !inputs.securityAnswer2 ||
       !inputs.securityAnswer3
     ) {
-      // Show a toast or alert if fields are missing
       alert("Please fill all the fields.");
       return;
     }
 
-    // Trigger signup with the inputs
     signup(inputs);
   };
 
@@ -71,6 +95,23 @@ const Signup = () => {
           </Button>
         </InputRightElement>
       </InputGroup>
+
+      <Button
+        w={"full"}
+        size={"sm"}
+        fontSize={14}
+        colorScheme="teal"
+        onClick={suggestPassword}
+      >
+        Suggest Strong Password
+      </Button>
+
+      {passwordWarning && (
+        <Alert status="warning" fontSize={13} p={2} borderRadius={4}>
+          <AlertIcon fontSize={12} />
+          {passwordWarning}
+        </Alert>
+      )}
 
       <Input
         placeholder="What is your mother's maiden name?"
