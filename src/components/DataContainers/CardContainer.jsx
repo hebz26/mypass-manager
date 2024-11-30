@@ -7,16 +7,7 @@ import useShowToast from "../../hooks/useShowToast";
 import useCopyToClipboard from "../../hooks/useCopyToClipboard";
 import { RealData, ProxyData } from "../proxy/DataClasses";
 import EditModal from "../modals/EditModal";
-
-const CardDetailRow = ({ label, value, isUnmasked, maskedValue, onCopy }) => (
-  <Flex mt={4} justifyContent="space-between" alignItems="center">
-    <Text fontWeight="bold">{label}:</Text>
-    <Text>{isUnmasked ? value : maskedValue}</Text>
-    <Tooltip label="Copy to Clipboard" aria-label="Copy to Clipboard">
-      <IconButton icon={<Text>📋</Text>} onClick={onCopy} size="sm" />
-    </Tooltip>
-  </Flex>
-);
+import CardDetailRow from "./CardDetailRow";
 
 const CardContainer = ({ card, uid, isUnmasked, onDelete }) => {
   const { cardNumber, cvv, expiryDate, name, id } = card;
