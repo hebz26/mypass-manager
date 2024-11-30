@@ -6,10 +6,13 @@ import { ExpirationNotifier, DateObserver } from "../observer-exp/Exp-Observer";
 
 const IdentityDetailRow = ({ label, value, isUnmasked }) => {
   const realData = new RealData(value);
-  const proxyData = new ProxyData(realData);
-
   const [isExpiringSoon, setIsExpiringSoon] = useState(false);
   const { copyToClipboard } = useCopyToClipboard();
+
+  // Only apply ProxyData to the sensitive values which are everything besides expiration dates
+  const proxyData = label.toLowerCase().includes("expir")
+    ? null
+    : new ProxyData(realData);
 
   // Apply the observer pattern if the label includes "expir"
   useEffect(() => {
@@ -25,7 +28,12 @@ const IdentityDetailRow = ({ label, value, isUnmasked }) => {
     }
   }, [label, value]);
 
-  const displayValue = isUnmasked ? proxyData.unmask() : proxyData.mask();
+  // Decide whether to use the proxyData or realData based on whether "expir" is in the label
+  const displayValue = label.toLowerCase().includes("expir")
+    ? value // Directly use the real data when it's an expiration date
+    : isUnmasked
+    ? proxyData.unmask()
+    : proxyData.mask(); // Use proxyData otherwise
 
   return (
     <Box mt={4}>
