@@ -23,18 +23,16 @@ import "../styles/Tab.css";
 
 const IdentityPage = () => {
   const { uid } = useAuthStore((state) => state.user);
-  const [ssn, setSsn] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [licenseExpiration, setLicenseExpiration] = useState("");
-  const [passportNumber, setPassportNumber] = useState("");
-  const [passportExpiration, setPassportExpiration] = useState("");
+  const [identityData, setIdentityData] = useState({
+    ssn: "",
+    licenseNumber: "",
+    licenseExpiration: "",
+    passportNumber: "",
+    passportExpiration: "",
+  });
+  const [editIdentityData, setEditIdentityData] = useState({ ...identityData });
   const [isUnmasked, setIsUnmasked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [editSsn, setEditSsn] = useState(""); // Separate state for modal inputs
-  const [editLicenseNumber, setEditLicenseNumber] = useState("");
-  const [editLicenseExpiration, setEditLicenseExpiration] = useState("");
-  const [editPassportNumber, setEditPassportNumber] = useState("");
-  const [editPassportExpiration, setEditPassportExpiration] = useState("");
 
   const showToast = useShowToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -46,17 +44,15 @@ const IdentityPage = () => {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      setSsn(data.ssn || "");
-      setLicenseNumber(data.licenseNumber || "");
-      setLicenseExpiration(data.licenseExpiration || "");
-      setPassportNumber(data.passportNumber || "");
-      setPassportExpiration(data.passportExpiration || "");
-      // Initialize the modal values
-      setEditSsn(data.ssn || "");
-      setEditLicenseNumber(data.licenseNumber || "");
-      setEditLicenseExpiration(data.licenseExpiration || "");
-      setEditPassportNumber(data.passportNumber || "");
-      setEditPassportExpiration(data.passportExpiration || "");
+      const userData = {
+        ssn: data.ssn || "",
+        licenseNumber: data.licenseNumber || "",
+        licenseExpiration: data.licenseExpiration || "",
+        passportNumber: data.passportNumber || "",
+        passportExpiration: data.passportExpiration || "",
+      };
+      setIdentityData(userData);
+      setEditIdentityData(userData); // Initialize modal edit values
     }
   };
 
@@ -64,27 +60,12 @@ const IdentityPage = () => {
     if (!uid) return;
     setIsLoading(true);
     try {
-      // Save the updated data
-      await setDoc(
-        doc(firestore, "users", uid),
-        {
-          ssn: editSsn,
-          licenseNumber: editLicenseNumber,
-          licenseExpiration: editLicenseExpiration,
-          passportNumber: editPassportNumber,
-          passportExpiration: editPassportExpiration,
-        },
-        { merge: true }
-      );
-      // Update the main values after saving
-      setSsn(editSsn);
-      setLicenseNumber(editLicenseNumber);
-      setLicenseExpiration(editLicenseExpiration);
-      setPassportNumber(editPassportNumber);
-      setPassportExpiration(editPassportExpiration);
-
+      await setDoc(doc(firestore, "users", uid), editIdentityData, {
+        merge: true,
+      });
+      setIdentityData(editIdentityData); // Update main values
       showToast("Success", "Data saved successfully.", "success");
-      onClose(); // Close the modal after saving
+      onClose();
     } catch (error) {
       console.error("Error saving data: ", error);
       alert("Error saving data.");
@@ -94,21 +75,31 @@ const IdentityPage = () => {
   };
 
   useEffect(() => {
-    if (uid) {
-      loadUserData();
-    }
+    if (uid) loadUserData();
   }, [uid]);
 
   const handleUnmaskAll = () => {
     setIsUnmasked(true);
-    setTimeout(() => {
-      setIsUnmasked(false);
-    }, 5000); // Automatically re-mask after 5 seconds
+    setTimeout(() => setIsUnmasked(false), 5000);
   };
 
-  if (!uid) {
-    return <Text>Loading user data...</Text>;
-  }
+  const handleInputChange = (e, field) => {
+    setEditIdentityData((prevData) => ({
+      ...prevData,
+      [field]: e.target.value,
+    }));
+  };
+
+  const renderDetailRow = (label, value, onChange) => (
+    <IdentityDetailRow
+      label={label}
+      value={value}
+      onChange={onChange}
+      isUnmasked={isUnmasked}
+    />
+  );
+
+  if (!uid) return <Text>Loading user data...</Text>;
 
   return (
     <div className="tab-page">
@@ -117,10 +108,7 @@ const IdentityPage = () => {
           My Identity
         </Text>
         <div className="buttons">
-          <Button
-            onClick={onOpen} // Open the modal
-            colorScheme="blue"
-          >
+          <Button onClick={onOpen} colorScheme="blue">
             Edit Identity Information
           </Button>
           <button className="unmask-button" onClick={handleUnmaskAll}>
@@ -128,40 +116,26 @@ const IdentityPage = () => {
           </button>
         </div>
         <div className="identity-container">
-          <IdentityDetailRow
-            label="SSN"
-            value={ssn}
-            onChange={setSsn}
-            isUnmasked={isUnmasked}
-          />
-
-          <IdentityDetailRow
-            label="License Number"
-            value={licenseNumber}
-            onChange={setLicenseNumber}
-            isUnmasked={isUnmasked}
-          />
-
-          <IdentityDetailRow
-            label="License Expiration"
-            value={licenseExpiration}
-            onChange={setLicenseExpiration}
-            isUnmasked={isUnmasked}
-          />
-
-          <IdentityDetailRow
-            label="Passport Number"
-            value={passportNumber}
-            onChange={setPassportNumber}
-            isUnmasked={isUnmasked}
-          />
-
-          <IdentityDetailRow
-            label="Passport Expiration"
-            value={passportExpiration}
-            onChange={setPassportExpiration}
-            isUnmasked={isUnmasked}
-          />
+          {[
+            "ssn",
+            "licenseNumber",
+            "licenseExpiration",
+            "passportNumber",
+            "passportExpiration",
+          ].map((field) => (
+            <IdentityDetailRow
+              key={field} // Add a unique key here
+              label={
+                field.charAt(0).toUpperCase() +
+                field.slice(1).replace(/([A-Z])/g, " $1")
+              }
+              value={identityData[field]}
+              onChange={(value) =>
+                setIdentityData((prev) => ({ ...prev, [field]: value }))
+              }
+              isUnmasked={isUnmasked}
+            />
+          ))}
         </div>
       </Box>
 
@@ -172,53 +146,26 @@ const IdentityPage = () => {
           <ModalHeader>Edit Identity Information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormLabel htmlFor="ssn">SSN</FormLabel>
-            <Input
-              id="ssn"
-              value={editSsn}
-              onChange={(e) => setEditSsn(e.target.value)}
-              isRequired
-            />
-
-            <FormLabel htmlFor="licenseNumber" mt={4}>
-              License Number
-            </FormLabel>
-            <Input
-              id="licenseNumber"
-              value={editLicenseNumber}
-              onChange={(e) => setEditLicenseNumber(e.target.value)}
-              isRequired
-            />
-
-            <FormLabel htmlFor="licenseExpiration" mt={4}>
-              License Expiration
-            </FormLabel>
-            <Input
-              id="licenseExpiration"
-              value={editLicenseExpiration}
-              onChange={(e) => setEditLicenseExpiration(e.target.value)}
-              isRequired
-            />
-
-            <FormLabel htmlFor="passportNumber" mt={4}>
-              Passport Number
-            </FormLabel>
-            <Input
-              id="passportNumber"
-              value={editPassportNumber}
-              onChange={(e) => setEditPassportNumber(e.target.value)}
-              isRequired
-            />
-
-            <FormLabel htmlFor="passportExpiration" mt={4}>
-              Passport Expiration
-            </FormLabel>
-            <Input
-              id="passportExpiration"
-              value={editPassportExpiration}
-              onChange={(e) => setEditPassportExpiration(e.target.value)}
-              isRequired
-            />
+            {[
+              { field: "ssn", label: "SSN" },
+              { field: "licenseNumber", label: "License Number" },
+              { field: "licenseExpiration", label: "License Expiration" },
+              { field: "passportNumber", label: "Passport Number" },
+              { field: "passportExpiration", label: "Passport Expiration" },
+            ].map(({ field, label }) => (
+              <div key={field} style={{ marginBottom: "16px" }}>
+                {" "}
+                {/* Add key here */}
+                <FormLabel htmlFor={field}>{label}</FormLabel>
+                <Input
+                  id={field}
+                  value={editIdentityData[field]}
+                  onChange={(e) => handleInputChange(e, field)}
+                  isRequired
+                  style={{ display: "block", width: "100%" }}
+                />
+              </div>
+            ))}
           </ModalBody>
           <ModalFooter>
             <Button
