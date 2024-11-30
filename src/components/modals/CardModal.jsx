@@ -73,7 +73,7 @@ const CardModal = ({ onClose, onItemCreated, isLoading, setIsLoading }) => {
             mb={4}
           />
           <Input
-            placeholder="MM/YY"
+            placeholder="MM/DD/YYYY"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
             maxLength={5}
