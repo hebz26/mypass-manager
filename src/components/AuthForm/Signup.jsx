@@ -4,12 +4,13 @@ import {
   AlertIcon,
   Button,
   Input,
-  Select,
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import useSignUpWithEmailAndPassword from "../../hooks/useSignUpWithEmailAndPassword";
+import { PasswordBuilder, PasswordDirector } from "./PasswordBuilder"; // Import both PasswordBuilder and PasswordDirector
+import useWeakPasswordObserver from "./WeakPasswordObserver"; // Import WeakPasswordObserver
+import useSignUpWithEmailAndPassword from "../../hooks/useSignUpWithEmailAndPassword"; // Assuming the signup hook
 
 const Signup = () => {
   const [inputs, setInputs] = useState({
@@ -23,8 +24,19 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, signup } = useSignUpWithEmailAndPassword();
 
+  // using the WeakPasswordObserver hook to check for weak passwords
+  const isWeakPassword = useWeakPasswordObserver(inputs.password);
+
+  // passwoed generator logic using PasswordDirector and PasswordBuilder (Builder Pattern)
+  const generateStrongPassword = () => {
+    const passwordBuilder = new PasswordBuilder();
+    const passwordDirector = new PasswordDirector(passwordBuilder);  // Create director with builder
+    const generatedPassword = passwordDirector.buildStrongPassword();  // Build the password
+    setInputs({ ...inputs, password: generatedPassword }); // Set the generated password
+  };
+
   const handleSubmit = () => {
-    // Check if all necessary fields are filled
+    // check if all necessary fields are filled
     if (
       !inputs.email ||
       !inputs.password ||
@@ -32,12 +44,11 @@ const Signup = () => {
       !inputs.securityAnswer2 ||
       !inputs.securityAnswer3
     ) {
-      // Show a toast or alert if fields are missing
       alert("Please fill all the fields.");
-      return;
+      return; // stip submission if any field is empty
     }
 
-    // Trigger signup with the inputs
+    // proceed with signup logic, passing inputs to the signup function
     signup(inputs);
   };
 
@@ -72,6 +83,33 @@ const Signup = () => {
         </InputRightElement>
       </InputGroup>
 
+      {/* weak password warning */}
+      {isWeakPassword && (
+        <Alert
+          status="warning"
+          fontSize={12}
+          p={2}
+          borderRadius={4}
+          variant="subtle"
+          colorScheme="yellow"
+          mb={2}
+        >
+          <AlertIcon />
+          Password must be at least 8 characters, with a mix of uppercase, lowercase, numbers, and symbols.
+        </Alert>
+      )}
+
+      {/* password generator */}
+      <Button
+        onClick={generateStrongPassword}
+        colorScheme="blue"
+        size={"sm"}
+        fontSize={14}
+        variant="outline"
+      >
+        Suggest Strong Password
+      </Button>
+
       <Input
         placeholder="What is your mother's maiden name?"
         fontSize={14}
@@ -100,6 +138,7 @@ const Signup = () => {
         }
       />
 
+      {/* displays any signup error */}
       {error && (
         <Alert status="error" fontSize={13} p={2} borderRadius={4}>
           <AlertIcon fontSize={12} />
